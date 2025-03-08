@@ -33,56 +33,53 @@ func (server *TcpServer) Start() {
 			log.Fatal(err)
 		}
 
-		go server.handleInbound(conn)
-		go server.handleOutbound(conn)
+		if server.exec != "" {
+			go server.handleExecConnection(conn, server.exec)
+		} else {
+			go server.handleStdConnection(conn)
+		}
 	}
 }
 
-func (server *TcpServer) handleInbound(conn net.Conn) {
+func (server *TcpServer) handleExecConnection(conn net.Conn, execCmd string) {
 	defer conn.Close()
 
-	if server.exec != "" {
-		cmd := exec.Command(server.exec)
+	cmd := exec.Command(execCmd)
 
-		stdin, _ := cmd.StdinPipe()
-		stdout, _ := cmd.StdoutPipe()
-		stderr, _ := cmd.StderrPipe()
+	stdin, _ := cmd.StdinPipe()
+	stdout, _ := cmd.StdoutPipe()
+	stderr, _ := cmd.StderrPipe()
 
-		cmd.Start()
+	cmd.Start()
 
-		done := make(chan bool, 2)
+	done := make(chan bool, 2)
 
-		go func() {
-			io.Copy(stdin, conn)
-			stdin.Close()
-			done <- true
-		}()
+	go func() {
+		io.Copy(stdin, conn)
+		stdin.Close()
+		done <- true
+	}()
 
-		go func() {
-			io.Copy(conn, stdout)
-			done <- true
-		}()
+	go func() {
+		io.Copy(conn, stdout)
+		done <- true
+	}()
 
-		go func() {
-			io.Copy(conn, stderr)
-			done <- true
-		}()
+	go func() {
+		io.Copy(conn, stderr)
+		done <- true
+	}()
 
-		<-done
-		<-done
+	<-done
+	<-done
 
-		cmd.Wait()
-	} else {
-		io.Copy(os.Stdout, conn)
-	}
-
-	conn.Close()
+	cmd.Wait()
 }
 
-func (server *TcpServer) handleOutbound(c net.Conn) {
-	_, err := io.Copy(c, os.Stdin)
-	if err != nil {
-		log.Println(err)
-	}
-	c.Close()
+func (server *TcpServer) handleStdConnection(conn net.Conn) {
+	defer conn.Close()
+
+	go io.Copy(os.Stdout, conn)
+
+	io.Copy(conn, os.Stdin)
 }
