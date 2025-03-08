@@ -17,7 +17,7 @@ func main() {
 
 			server.Start()
 		} else {
-			server := NewTcpServer(listenConfig.Port)
+			server := NewTcpServer(listenConfig.Port, listenConfig.Exec)
 
 			server.Start()
 		}

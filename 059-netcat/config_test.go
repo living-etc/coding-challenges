@@ -15,8 +15,8 @@ func Test_ParseConfig(t *testing.T) {
 		{"No args", []string{}, Config{}},
 		{
 			"Listen Mode (TCP)",
-			[]string{"-l", "-p", "8888"},
-			Config{Listen: &ListenConfig{Port: "8888"}, Scan: nil},
+			[]string{"-l", "-p", "8888", "-e", "/bin/bash"},
+			Config{Listen: &ListenConfig{Port: "8888", Exec: "/bin/bash"}, Scan: nil},
 		},
 		{
 			"Listen Mode (UDP)",

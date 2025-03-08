@@ -17,6 +17,7 @@ type Config struct {
 type ListenConfig struct {
 	Port string
 	Udp  bool
+	Exec string
 }
 
 type ScanConfig struct {
@@ -31,6 +32,7 @@ func ParseConfig(args []string) Config {
 	listenFlag := flagSet.Bool("l", false, "Run in listen mode")
 	scanFlag := flagSet.Bool("z", false, "Scan for an open port")
 	udpFlag := flagSet.Bool("u", false, "Listen for UDP connections")
+	execFlag := flagSet.String("e", "", "Execute the specified command")
 
 	err := flagSet.Parse(args)
 	if err != nil {
@@ -49,6 +51,7 @@ func ParseConfig(args []string) Config {
 		config.Listen = &ListenConfig{
 			Port: *portFlag,
 			Udp:  *udpFlag,
+			Exec: *execFlag,
 		}
 	}
 
