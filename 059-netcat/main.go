@@ -39,6 +39,6 @@ func main() {
 			}
 		}
 	} else {
-		fmt.Println("Not in a valid mode")
+		fmt.Println("Usage: ccnc [-luz] [-i interval] [-p source_port] [hostname] [port[s]]")
 	}
 }
