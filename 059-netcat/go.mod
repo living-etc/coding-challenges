@@ -1,4 +1,4 @@
-module ccnc
+module ccncat
 
 go 1.24.1
 
